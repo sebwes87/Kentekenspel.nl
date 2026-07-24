@@ -53,6 +53,28 @@
     gap:12px;
   }
   .title-block{ text-align:left; }
+  .header-right{
+    flex:0 0 auto;
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:6px;
+  }
+  .scorebord-btn{
+    display:block;
+    text-align:center;
+    text-decoration:none;
+    background:var(--accent-gold);
+    color:#5a4600;
+    font-weight:800;
+    font-size:0.78rem;
+    padding:6px 10px;
+    border-radius:12px;
+    border:2px solid #c99a1f;
+    box-shadow:0 2px 0 rgba(180,140,0,0.25);
+    white-space:nowrap;
+  }
+  .scorebord-btn:active{ transform:scale(0.97); }
   .scene{
     width:100%;
     height:auto;
@@ -526,13 +548,16 @@
       <h1>🚗 Kenteken <span class="accent">Spot</span> Spel</h1>
       <div class="sub">édition française: spot alle departementen!</div>
     </div>
-    <div class="score-card">
-      <div>
-        <div class="score-number" id="scoreNumber">0</div>
-        <div class="score-label">punten</div>
-      </div>
-      <div class="score-breakdown" id="scoreBreakdown">
-        💎 0 &nbsp; 🥇 0 &nbsp; 🥈 0 &nbsp; 🥉 0
+    <div class="header-right">
+      <a class="scorebord-btn" href="scorebord.html">📋 Scorebord</a>
+      <div class="score-card">
+        <div>
+          <div class="score-number" id="scoreNumber">0</div>
+          <div class="score-label">punten</div>
+        </div>
+        <div class="score-breakdown" id="scoreBreakdown">
+          💎 0 &nbsp; 🥇 0 &nbsp; 🥈 0 &nbsp; 🥉 0
+        </div>
       </div>
     </div>
   </div>
