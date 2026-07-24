@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Scorebord - Kenteken Spot Spel</title>
+<style>
+  :root{
+    --blue-dark:#1a3a6b;
+    --blue-mid:#2f5fa3;
+    --blue-bg:#eaf2fb;
+    --accent-red:#c0392b;
+    --accent-gold:#e0b23c;
+    --bronze:#cd7f32;
+    --silver:#9aa5b1;
+    --gold:#e6b400;
+    --green:#3a9d5d;
+    --white:#ffffff;
+    --sky1:#8ec9f2;
+    --sky2:#d9edfb;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  body{
+    margin:0;
+    font-family:"Chalkboard SE","Marker Felt","Comic Sans MS", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(180deg, var(--blue-bg) 0%, #dceafd 100%);
+    color:var(--blue-dark);
+    padding-bottom:40px;
+  }
+  header{
+    background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 100%);
+    color:var(--blue-dark);
+    padding:22px 16px 18px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.2);
+  }
+  header h1{
+    margin:0;
+    font-size:1.6rem;
+    text-shadow: 1px 1px 0 rgba(255,255,255,0.6);
+  }
+  header .sub{ font-size:0.9rem; margin-top:4px; color:var(--blue-mid); }
+
+  main{ max-width:640px; margin:0 auto; padding:16px; }
+
+  .empty{
+    text-align:center;
+    background:var(--white);
+    border-radius:16px;
+    padding:36px 20px;
+    margin-top:12px;
+    box-shadow:0 2px 8px rgba(26,58,107,0.12);
+  }
+  .empty .big{ font-size:2.6rem; }
+  .empty p{ color:var(--blue-mid); line-height:1.5; }
+
+  .row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--white);
+    border-radius:16px;
+    padding:12px 14px;
+    margin-bottom:10px;
+    box-shadow:0 2px 8px rgba(26,58,107,0.10);
+  }
+  .row.top1{ background:linear-gradient(135deg,#fff7d6,#ffe9a3); }
+  .row.top2{ background:linear-gradient(135deg,#f4f6f8,#e2e8ee); }
+  .row.top3{ background:linear-gradient(135deg,#f8e8d8,#f0d3b6); }
+  .rank{
+    font-size:1.4rem;
+    font-weight:800;
+    min-width:44px;
+    text-align:center;
+  }
+  .info{ flex:1; min-width:0; }
+  .name{
+    font-weight:800;
+    font-size:1.1rem;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .meta{ font-size:0.78rem; color:var(--blue-mid); margin-top:2px; }
+  .pts{
+    text-align:right;
+    min-width:76px;
+  }
+  .pts .num{ font-size:1.5rem; font-weight:800; color:var(--green); line-height:1; }
+  .pts .lbl{ font-size:0.65rem; font-weight:700; text-transform:uppercase; color:#8a6d00; }
+
+  .toolbar{
+    display:flex;
+    gap:8px;
+    margin:18px 0 0;
+  }
+  .toolbar a, .toolbar button{
+    flex:1;
+    border:none;
+    border-radius:12px;
+    padding:12px 8px;
+    font-size:0.9rem;
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+    text-align:center;
+    text-decoration:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .btn-back{ background:var(--blue-mid); color:#fff; }
+  .btn-clear{ background:#f4d3d0; color:var(--accent-red); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏆 Scorebord</h1>
+  <div class="sub">Topscores van het Kenteken Spot Spel</div>
+</header>
+
+<main>
+  <div id="list"></div>
+
+  <div class="toolbar">
+    <a class="btn-back" href="index.html">🚗 Terug naar het spel</a>
+  </div>
+
+  <p style="text-align:center;font-size:0.75rem;color:var(--blue-mid);margin-top:18px;">
+    Topscores van alle spelers, live bijgewerkt.
+  </p>
+</main>
+
+<script>
+  const SUPABASE_URL = "https://hkqghslxdgtepgdanlix.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_geO0Lh81dmzy7aLFIzKrbQ_u2CKb_1A";
+  const MEDALS = ["🥇", "🥈", "🥉"];
+
+  async function loadScores(){
+    const res = await fetch(SUPABASE_URL + "/rest/v1/scores?select=name,score,found,total,created_at&order=score.desc", {
+      headers: { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY }
+    });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    return await res.json();
+  }
+
+  // Houd per naam (hoofdletterongevoelig) alleen de hoogste score over.
+  function bestPerName(rows){
+    const map = new Map();
+    rows.forEach(r => {
+      const key = String(r.name || "Anoniem").trim().toLowerCase();
+      const cur = map.get(key);
+      if(!cur || r.score > cur.score) map.set(key, r);
+    });
+    return [...map.values()].sort((a,b) =>
+      b.score - a.score || new Date(a.created_at) - new Date(b.created_at)
+    );
+  }
+
+  function fmtDate(ts){
+    if(!ts) return "";
+    try{
+      return new Date(ts).toLocaleDateString("nl-NL", { day:"numeric", month:"short", year:"numeric" });
+    }catch(e){ return ""; }
+  }
+
+  function esc(s){
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  function renderEmpty(msg){
+    document.getElementById("list").innerHTML =
+      '<div class="empty">' +
+        '<div class="big">🚗💨</div>' +
+        '<h2>Nog geen scores!</h2>' +
+        '<p>' + msg + '</p>' +
+      '</div>';
+  }
+
+  async function render(){
+    const list = document.getElementById("list");
+    list.innerHTML = '<div class="empty"><div class="big">⏳</div><p>Scores laden...</p></div>';
+    let rows;
+    try{
+      rows = bestPerName(await loadScores());
+    }catch(err){
+      renderEmpty("Kon de scores niet laden. Check je internet en ververs de pagina. 📶");
+      return;
+    }
+    if(rows.length === 0){
+      renderEmpty('Speel het spel, vul je naam in en tik op<br><strong>"🏆 Op het scorebord"</strong> om hier te verschijnen.');
+      return;
+    }
+    list.innerHTML = rows.map((s, i) => {
+      const rank = i < 3 ? MEDALS[i] : (i + 1);
+      const topClass = i < 3 ? " top" + (i + 1) : "";
+      const found = (s.found != null && s.total != null) ? (s.found + " / " + s.total + " gevonden · ") : "";
+      return '' +
+        '<div class="row' + topClass + '">' +
+          '<div class="rank">' + rank + '</div>' +
+          '<div class="info">' +
+            '<div class="name">' + esc(s.name || "Anoniem") + '</div>' +
+            '<div class="meta">' + found + fmtDate(s.created_at) + '</div>' +
+          '</div>' +
+          '<div class="pts"><div class="num">' + s.score + '</div><div class="lbl">punten</div></div>' +
+        '</div>';
+    }).join("");
+  }
+
+  render();
+</script>
+
+</body>
+</html>

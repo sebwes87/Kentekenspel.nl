@@ -274,6 +274,24 @@
   #resetBtn{ background:#f4d3d0; color:var(--accent-red); }
   #rulesBtn{ background:#dbe8fb; color:var(--blue-mid); }
   #legendBtn{ background:#fff1c2; color:#8a6d00; }
+  #saveScoreBtn{ background:var(--green); color:#fff; }
+  .toolbar .btn-link{
+    flex:1;
+    border:none;
+    border-radius:12px;
+    padding:10px 6px;
+    font-size:0.85rem;
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+    text-align:center;
+    text-decoration:none;
+    background:var(--accent-gold);
+    color:#5a4600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
 
   #searchInput{
     max-width:640px;
@@ -675,6 +693,11 @@
   <button id="resetBtn">↺ Wissen</button>
 </div>
 
+<div class="toolbar">
+  <button id="saveScoreBtn">🏆 Op het scorebord</button>
+  <a class="btn-link" href="scorebord.html">📋 Bekijk scorebord</a>
+</div>
+
 <input type="text" id="searchInput" placeholder="Zoek op nummer of naam...">
 
 <main>
@@ -1071,6 +1094,57 @@ updateProgress();
 const nameInput = document.getElementById("nameInput");
 nameInput.value = localStorage.getItem(NAME_KEY) || "";
 nameInput.addEventListener("input", () => localStorage.setItem(NAME_KEY, nameInput.value));
+
+// ---------- Scorebord (online, gedeeld via Supabase) ----------
+const SUPABASE_URL = "https://hkqghslxdgtepgdanlix.supabase.co";
+const SUPABASE_KEY = "sb_publishable_geO0Lh81dmzy7aLFIzKrbQ_u2CKb_1A";
+
+function computeStats(){
+  const all = [...metroDepartments, ...overseasDepartments];
+  let found = 0, score = 0;
+  all.forEach(([code]) => {
+    if(state[code]){ found++; score += POINTS[tierOf(code)]; }
+  });
+  return { found, total: all.length, score };
+}
+
+const saveScoreBtn = document.getElementById("saveScoreBtn");
+saveScoreBtn.addEventListener("click", async () => {
+  const name = (nameInput.value || "").trim();
+  if(!name){
+    alert("Vul eerst je naam in bovenaan de pagina! 🧒");
+    nameInput.focus();
+    return;
+  }
+  const { found, total, score } = computeStats();
+  if(score === 0){
+    alert("Je hebt nog geen punten. Spot eerst een paar kentekens! 🚗");
+    return;
+  }
+  const original = saveScoreBtn.textContent;
+  saveScoreBtn.disabled = true;
+  saveScoreBtn.textContent = "⏳ Bezig...";
+  try{
+    const res = await fetch(SUPABASE_URL + "/rest/v1/scores", {
+      method: "POST",
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ name, score, found, total })
+    });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    if(confirm("Je score van " + score + " punten staat op het scorebord! 🏆\n\nWil je het scorebord nu bekijken?")){
+      window.location.href = "scorebord.html";
+    }
+  }catch(err){
+    alert("Oeps, het opslaan lukte niet. Check je internetverbinding en probeer het nog eens. 📶");
+  }finally{
+    saveScoreBtn.disabled = false;
+    saveScoreBtn.textContent = original;
+  }
+});
 
 document.getElementById("resetBtn").addEventListener("click", () => {
   if(confirm("Weet je zeker dat je alle vinkjes en de score wilt wissen?")){
