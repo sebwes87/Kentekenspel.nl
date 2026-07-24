@@ -48,7 +48,7 @@
     margin:0 auto;
     padding:0 16px;
     display:flex;
-    align-items:center;
+    align-items:flex-start;
     justify-content:space-between;
     gap:12px;
   }
@@ -56,25 +56,37 @@
   .header-right{
     flex:0 0 auto;
     display:flex;
-    flex-direction:column;
+    flex-direction:row;
     align-items:stretch;
-    gap:6px;
+    gap:8px;
   }
   .scorebord-btn{
-    display:block;
+    display:flex;
+    align-items:center;
+    justify-content:center;
     text-align:center;
     text-decoration:none;
     background:var(--accent-gold);
     color:#5a4600;
     font-weight:800;
     font-size:0.78rem;
-    padding:6px 10px;
-    border-radius:12px;
+    padding:6px 12px;
+    border-radius:14px;
     border:2px solid #c99a1f;
     box-shadow:0 2px 0 rgba(180,140,0,0.25);
     white-space:nowrap;
   }
   .scorebord-btn:active{ transform:scale(0.97); }
+  @media (max-width:520px){
+    header h1{ font-size:clamp(1.05rem, 5.2vw, 1.5rem); }
+    header .sub{ font-size:0.7rem; }
+    .header-right{ gap:6px; }
+    .scorebord-btn{ font-size:0.66rem; padding:5px 8px; border-radius:12px; }
+    .score-card{ padding:4px 9px; border-radius:12px; }
+    .score-number{ font-size:1.35rem; }
+    .score-label{ font-size:0.55rem; }
+    .score-breakdown{ font-size:0.58rem; }
+  }
   .scene{
     width:100%;
     height:auto;
@@ -105,7 +117,7 @@
     display:flex;
     align-items:center;
     gap:8px;
-    justify-content:center;
+    justify-content:flex-start;
   }
   .name-row label{ font-size:0.9rem; font-weight:700; }
   .name-row input{
