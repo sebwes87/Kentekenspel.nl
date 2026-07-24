@@ -35,25 +35,33 @@
 
   /* ---------- Header / hero scene ---------- */
   header{
-    background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 78%, #cdeccd 100%);
+    background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 100%);
     color:var(--blue-dark);
-    padding:16px 0 14px;
-    text-align:center;
+    padding:10px 0 10px;
     position:sticky;
     top:0;
     z-index:20;
     box-shadow:0 2px 10px rgba(0,0,0,0.2);
-    overflow:hidden;
   }
+  .header-bar{
+    max-width:640px;
+    margin:0 auto;
+    padding:0 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .title-block{ text-align:left; }
   .scene{
     width:100%;
-    height:225px;
+    height:auto;
     display:block;
-    margin-top:14px;
   }
   header h1{
     margin:0;
-    font-size:2.1rem;
+    font-size:clamp(1.35rem, 6vw, 1.9rem);
+    line-height:1.05;
     letter-spacing:0.5px;
     color:var(--blue-dark);
     text-shadow: 1px 1px 0 rgba(255,255,255,0.6);
@@ -62,15 +70,15 @@
     color:var(--accent-red);
   }
   header .sub{
-    font-size:1.05rem;
+    font-size:clamp(0.72rem, 2.6vw, 0.9rem);
     opacity:0.85;
-    margin-top:4px;
+    margin-top:2px;
     font-weight:600;
   }
 
   .name-row{
     max-width:640px;
-    margin:12px auto 0;
+    margin:10px auto 0;
     padding:0 16px;
     display:flex;
     align-items:center;
@@ -91,33 +99,32 @@
     color:var(--blue-dark);
   }
 
-  .scoreboard{
-    max-width:640px;
-    margin:12px auto 0;
-    padding:0 16px;
-  }
   .score-card{
+    flex:0 0 auto;
     background: linear-gradient(135deg, #fff8e0, #fff1c2);
-    border:3px solid var(--gold);
-    border-radius:16px;
-    padding:10px 16px;
+    border:2px solid var(--gold);
+    border-radius:14px;
+    padding:5px 12px;
     display:flex;
+    flex-direction:column;
     align-items:center;
-    justify-content:space-between;
-    box-shadow: 0 3px 0 rgba(180,140,0,0.25);
+    box-shadow: 0 2px 0 rgba(180,140,0,0.25);
+    line-height:1;
   }
+  .score-card > div:first-child{ display:flex; align-items:baseline; gap:5px; }
   .score-number{
-    font-size:2rem;
+    font-size:1.7rem;
     font-weight:900;
     color:var(--accent-red);
     transition: transform 0.2s ease;
   }
   .score-number.bump{ transform: scale(1.25); }
-  .score-label{ font-size:0.7rem; font-weight:700; color:#8a6d00; text-transform:uppercase; }
+  .score-label{ font-size:0.62rem; font-weight:700; color:#8a6d00; text-transform:uppercase; }
   .score-breakdown{
-    font-size:0.78rem;
-    text-align:right;
-    line-height:1.5;
+    font-size:0.66rem;
+    text-align:center;
+    margin-top:3px;
+    white-space:nowrap;
     font-weight:700;
   }
 
@@ -146,27 +153,40 @@
     color:var(--blue-dark);
   }
 
-  /* ---------- Plate explainer ---------- */
-  .plate-explainer{
-    max-width:400px;
+  /* ---------- Intro row: rijdend plaatje + kenteken-uitleg ---------- */
+  .intro-row{
+    max-width:760px;
     margin:14px auto 0;
     padding:0 16px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    justify-content:center;
+    align-items:stretch;
   }
-  .plate-explainer .box{
+  .intro-row .box{
+    flex:1 1 320px;
+    min-width:280px;
     background:white;
     border:2px solid var(--blue-light);
     border-radius:16px;
-    padding:8px 4px 4px;
+    padding:8px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    overflow:hidden;
   }
-  .plate-explainer h3{
-    margin:6px 0 0;
+  .intro-row h3{
+    margin:2px 0 6px;
     font-size:0.85rem;
     text-align:center;
     color:var(--blue-mid);
     text-transform:uppercase;
     letter-spacing:0.4px;
   }
-  .plate-explainer svg{ width:100%; height:auto; display:block; }
+  .intro-row svg{ width:100%; height:auto; display:block; }
+  .scene-box{ padding:0; }
+  .scene-box .scene{ border-radius:14px; }
 
   /* ---------- Map ---------- */
   .map-section{
@@ -486,9 +506,11 @@
     padding:0 20px;
   }
 
-  @keyframes floatCar{
+  /* subtiele veer-beweging: de auto blijft met de wielen op de weg */
+  .car-bob{ animation: driveBob 0.5s ease-in-out infinite; }
+  @keyframes driveBob{
     0%,100%{ transform: translateY(0); }
-    50%{ transform: translateY(-3px); }
+    50%{ transform: translateY(-1px); }
   }
   @keyframes sunPulse{
     0%,100%{ transform: scale(1); }
@@ -499,12 +521,46 @@
 <body>
 
 <header>
-  <h1>🚗 Kenteken <span class="accent">Spot</span> Spel</h1>
-  <div class="sub">édition française: spot alle departementen!</div>
+  <div class="header-bar">
+    <div class="title-block">
+      <h1>🚗 Kenteken <span class="accent">Spot</span> Spel</h1>
+      <div class="sub">édition française: spot alle departementen!</div>
+    </div>
+    <div class="score-card">
+      <div>
+        <div class="score-number" id="scoreNumber">0</div>
+        <div class="score-label">punten</div>
+      </div>
+      <div class="score-breakdown" id="scoreBreakdown">
+        💎 0 &nbsp; 🥇 0 &nbsp; 🥈 0 &nbsp; 🥉 0
+      </div>
+    </div>
+  </div>
 
-  <svg class="scene" viewBox="0 0 400 200" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
-    <!-- sun with happy face -->
-    <g style="transform-origin:340px 45px; animation: sunPulse 2.4s ease-in-out infinite;">
+  <div class="name-row">
+    <label for="nameInput">🧒 Naam:</label>
+    <input type="text" id="nameInput" placeholder="Vul je naam in" maxlength="24">
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <div class="progress-text" id="progressText">0 / 102 gevonden</div>
+  </div>
+</header>
+
+<!-- Intro: rijdend plaatje + kenteken-uitleg naast elkaar -->
+<div class="intro-row">
+  <div class="box scene-box">
+    <svg class="scene" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#8ec9f2"/>
+          <stop offset="1" stop-color="#dff0fc"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="400" height="164" fill="url(#skyGrad)"/>
+
+      <g style="transform-origin:340px 45px; animation: sunPulse 2.4s ease-in-out infinite;">
       <g stroke="#F4A522" stroke-width="4" stroke-linecap="round">
         <line x1="340" y1="8" x2="340" y2="0"/>
         <line x1="365" y1="15" x2="371" y2="9"/>
@@ -522,31 +578,53 @@
       <circle cx="355" cy="50" r="3.2" fill="#ff9f80" opacity="0.6"/>
     </g>
 
-    <!-- clouds -->
-    <g fill="#ffffff" opacity="0.95">
-      <ellipse cx="60" cy="28" rx="24" ry="10"/>
-      <ellipse cx="80" cy="23" rx="17" ry="9"/>
-      <ellipse cx="42" cy="24" rx="15" ry="8"/>
-      <ellipse cx="210" cy="18" rx="20" ry="8"/>
-      <ellipse cx="228" cy="22" rx="14" ry="7"/>
-    </g>
+      <!-- clouds -->
+      <g fill="#ffffff" opacity="0.95">
+        <ellipse cx="70" cy="40" rx="24" ry="10"/>
+        <ellipse cx="90" cy="35" rx="17" ry="9"/>
+        <ellipse cx="52" cy="36" rx="15" ry="8"/>
+        <ellipse cx="205" cy="30" rx="20" ry="8"/>
+        <ellipse cx="223" cy="34" rx="14" ry="7"/>
+      </g>
 
-    <!-- grass + road -->
-    <rect x="0" y="150" width="400" height="14" fill="#8bc48a"/>
-    <rect x="0" y="164" width="400" height="36" fill="#5c6773"/>
-    <rect x="0" y="164" width="400" height="4" fill="#f2f2f2" opacity="0.6"/>
-    <g fill="#ffe082">
-      <rect x="10" y="180" width="26" height="5" rx="2.5"/>
-      <rect x="70" y="180" width="26" height="5" rx="2.5"/>
-      <rect x="130" y="180" width="26" height="5" rx="2.5"/>
-      <rect x="190" y="180" width="26" height="5" rx="2.5"/>
-      <rect x="250" y="180" width="26" height="5" rx="2.5"/>
-      <rect x="310" y="180" width="26" height="5" rx="2.5"/>
-      <rect x="370" y="180" width="26" height="5" rx="2.5"/>
-    </g>
+      <!-- grass + road -->
+      <rect x="0" y="150" width="400" height="14" fill="#8bc48a"/>
+      <rect x="0" y="164" width="400" height="36" fill="#5c6773"/>
+      <rect x="0" y="164" width="400" height="4" fill="#f2f2f2" opacity="0.6"/>
+      <g fill="#ffe082">
+        <rect x="10" y="180" width="26" height="5" rx="2.5"/>
+        <rect x="70" y="180" width="26" height="5" rx="2.5"/>
+        <rect x="130" y="180" width="26" height="5" rx="2.5"/>
+        <rect x="190" y="180" width="26" height="5" rx="2.5"/>
+        <rect x="250" y="180" width="26" height="5" rx="2.5"/>
+        <rect x="310" y="180" width="26" height="5" rx="2.5"/>
+        <rect x="370" y="180" width="26" height="5" rx="2.5"/>
+      </g>
 
-    <!-- cute french 2CV-style car -->
-    <g style="animation: floatCar 1.5s ease-in-out infinite;" transform="translate(90,95)">
+      <!-- wielrenner in gele trui (maillot jaune) -->
+      <g transform="translate(285,166)">
+        <circle cx="0" cy="0" r="9" fill="none" stroke="#2b2b2b" stroke-width="3"/>
+        <circle cx="0" cy="0" r="1.6" fill="#2b2b2b"/>
+        <circle cx="32" cy="0" r="9" fill="none" stroke="#2b2b2b" stroke-width="3"/>
+        <circle cx="32" cy="0" r="1.6" fill="#2b2b2b"/>
+        <g stroke="#2f5fa3" stroke-width="2.3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M0 0 L14 -1 L7 -18 Z"/>
+          <path d="M14 -1 L30 -15 L7 -18"/>
+          <line x1="30" y1="-15" x2="32" y2="0"/>
+        </g>
+        <g stroke="#33383f" stroke-width="3" fill="none" stroke-linecap="round">
+          <path d="M7 -18 L11 -9 L14 -1"/>
+          <path d="M7 -18 L13 -10 L16 -2" opacity="0.65"/>
+        </g>
+        <path d="M7 -18 L21 -30" stroke="#f5c518" stroke-width="6.5" fill="none" stroke-linecap="round"/>
+        <path d="M21 -30 L30 -15" stroke="#f5c518" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <circle cx="25.5" cy="-34" r="4" fill="#f2c79b"/>
+        <path d="M21.3 -34.5 Q25.5 -40 29.7 -34.5 Z" fill="#f5c518" stroke="#d9a800" stroke-width="0.8"/>
+      </g>
+
+      <!-- rode auto, met de wielen op de weg -->
+      <g transform="translate(70,106)">
+        <g class="car-bob">
       <ellipse cx="60" cy="78" rx="66" ry="9" fill="rgba(0,0,0,0.15)"/>
       <!-- body -->
       <path d="M6 46 Q4 20 30 18 L46 18 Q54 2 78 2 L98 2 Q118 2 124 18 Q142 20 142 38 L142 46 Q142 56 132 56 L14 56 Q6 56 6 46 Z" fill="#e0463b" stroke="#a8281f" stroke-width="1.5"/>
@@ -586,35 +664,12 @@
           <line x1="20" y1="-8" x2="26" y2="8"/>
         </g>
       </g>
-    </g>
-  </svg>
-
-  <div class="name-row">
-    <label for="nameInput">🧒 Naam:</label>
-    <input type="text" id="nameInput" placeholder="Vul je naam in" maxlength="24">
+        </g>
+      </g>
+    </svg>
   </div>
 
-  <div class="scoreboard">
-    <div class="score-card">
-      <div>
-        <div class="score-number" id="scoreNumber">0</div>
-        <div class="score-label">punten</div>
-      </div>
-      <div class="score-breakdown" id="scoreBreakdown">
-        💎 0 &nbsp; 🥇 0 &nbsp; 🥈 0 &nbsp; 🥉 0
-      </div>
-    </div>
-  </div>
-
-  <div class="progress-wrap">
-    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
-    <div class="progress-text" id="progressText">0 / 102 gevonden</div>
-  </div>
-</header>
-
-<!-- Plate explainer -->
-<div class="plate-explainer">
-  <div class="box">
+  <div class="box plate-box">
     <h3>Zo lees je een Frans kenteken</h3>
     <svg viewBox="0 0 420 175" xmlns="http://www.w3.org/2000/svg">
       <!-- callout: EU/land -->
@@ -660,6 +715,7 @@
     <div class="map-caption">Dat kleine getal rechts (hier "75") is het departementsnummer, en dát is wat je gaat spotten en aanvinken!</div>
   </div>
 </div>
+
 
 <!-- France map -->
 <div class="map-section">
